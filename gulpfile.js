@@ -58,6 +58,7 @@ function html() {
   return src(path.src.html)
     .pipe(fileinclude())
     .pipe(webphtml())
+    .pipe(strip())
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
