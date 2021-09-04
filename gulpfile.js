@@ -38,11 +38,11 @@ let { src, dest } = require('gulp'),
   uglify = require("gulp-uglify-es").default,
   // babel = require("gulp-babel"),
   tinypng = require("gulp-tinypng");
-  cache = require('gulp-cache');
+  // cache = require('gulp-cache');
   webp = require('gulp-webp');
   webphtml = require('gulp-webp-html');
-  webpcss = require('gulp-webpcss');
-  
+  webpcss = require('gulp-webpcss'),
+  strip = require('gulp-strip-comments');
 
 function browserSync(params) {
   browsersync.init({
@@ -79,6 +79,7 @@ function images() {
 function js() {
   return src(path.src.js)
     .pipe(fileinclude())
+    .pipe(strip())
     .pipe(dest(path.build.js))
     // .pipe(
     //   babel({
