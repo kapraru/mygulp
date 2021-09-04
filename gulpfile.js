@@ -25,7 +25,7 @@ let path = {
   clean: "./" + project_folder + "/"
 }
 
-let { src, dest } = require('gulp'),
+const { src, dest } = require('gulp'),
   gulp = require('gulp'),
   browsersync = require("browser-sync").create(),
   fileinclude = require("gulp-file-include"),
@@ -37,14 +37,14 @@ let { src, dest } = require('gulp'),
   rename = require("gulp-rename"),
   uglify = require("gulp-uglify-es").default,
   // babel = require("gulp-babel"),
-  tinypng = require("gulp-tinypng");
-  // cache = require('gulp-cache');
-  webp = require('gulp-webp');
-  webphtml = require('gulp-webp-html');
+  tinypng = require("gulp-tinypng"),
+  cache = require('gulp-cache'),
+  webp = require('gulp-webp'),
+  webphtml = require('gulp-webp-html'),
   webpcss = require('gulp-webpcss'),
-  strip = require('gulp-strip-comments');
+  stripComments = require('gulp-strip-comments');
 
-function browserSync(params) {
+  const browserSync = () => {
   browsersync.init({
     server: {
       baseDir: "./" + project_folder + "/"
@@ -54,16 +54,15 @@ function browserSync(params) {
   })
 }
 
-function html() {
+const html = () => {
   return src(path.src.html)
     .pipe(fileinclude())
     .pipe(webphtml())
-    .pipe(strip())
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
 
-function images() {
+const images = () => {
   return src(path.src.img)
     .pipe(
       webp({
@@ -77,10 +76,9 @@ function images() {
     .pipe(browsersync.stream())
 }
 
-function js() {
+const js = () => {
   return src(path.src.js)
     .pipe(fileinclude())
-    .pipe(strip())
     .pipe(dest(path.build.js))
     // .pipe(
     //   babel({
@@ -99,7 +97,7 @@ function js() {
     .pipe(browsersync.stream())
 }
 
-function css() {
+const css = () => {
   return src(path.src.css)
     .pipe(
       scss({ 
@@ -129,24 +127,21 @@ function css() {
     .pipe(browsersync.stream())
 }
 
-function watchFiles(params) {
+// Watch
+
+const watchFiles = () => {
   gulp.watch([path.watch.html], html)
   gulp.watch([path.watch.css], css)
   gulp.watch([path.watch.js], js)
   gulp.watch([path.watch.img], images)
 }
 
-function clean(params) {
+const clean = () => {
   return del(path.clean);
 }
 
-let build = gulp.series(clean, gulp.parallel(css, js, html, images));
-let watch = gulp.parallel(build, watchFiles, browserSync);
-
-exports.build = build;
-exports.images = images;
-exports.html = html;
-exports.js = js;
-exports.css = css;
-exports.watch = watch;
-exports.default = watch;
+exports.default = gulp.series(
+  clean,
+  gulp.parallel(css, js, html, images),
+  gulp.parallel(watchFiles, browserSync)
+)
