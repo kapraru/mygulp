@@ -43,7 +43,7 @@ const { src, dest } = require('gulp'),
   webphtml = require('gulp-webp-html'),
   webpcss = require('gulp-webpcss');
 
-  const browserSync = () => {
+const browserSync = () => {
   browsersync.init({
     server: {
       baseDir: "./" + project_folder + "/"
