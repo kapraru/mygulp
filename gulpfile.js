@@ -41,8 +41,7 @@ const { src, dest } = require('gulp'),
   cache = require('gulp-cache'),
   webp = require('gulp-webp'),
   webphtml = require('gulp-webp-html'),
-  webpcss = require('gulp-webpcss'),
-  stripComments = require('gulp-strip-comments');
+  webpcss = require('gulp-webpcss');
 
   const browserSync = () => {
   browsersync.init({

@@ -28,10 +28,9 @@
     "gulp-webp-html": "^1.0.2",
     "gulp-webpcss": "^1.1.1",
     "jquery": "^3.6.0",
+    "normalize.css": "^8.0.1",
     "sass": "^1.38.2",
     "webp-converter": "^2.2.3"
   },
-  "dependencies": {
-    "normalize.css": "^8.0.1"
-  }
+  "dependencies": {}
 }
