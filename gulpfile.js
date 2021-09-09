@@ -1,4 +1,5 @@
-let project_folder = require("path").basename(__dirname);
+// let project_folder = require("path").basename(__dirname);
+let project_folder = 'build';
 let source_folder = "src";
 
 let path = {
@@ -14,7 +15,7 @@ let path = {
     css: source_folder + "/scss/style.scss",
     js: source_folder + "/js/main.js",
     img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
-    fonts: source_folder + "/fonts/*.ttf"
+    fonts: source_folder + "/fonts/*"
   },
   watch: {
     html: source_folder + "/**/*.html",
@@ -40,7 +41,7 @@ const { src, dest } = require('gulp'),
   tinypng = require("gulp-tinypng"),
   cache = require('gulp-cache'),
   webp = require('gulp-webp'),
-  webphtml = require('gulp-webp-html'),
+  webphtml = require('gulp-xv-webp-html'),
   webpcss = require('gulp-webpcss');
 
 const browserSync = () => {
@@ -56,7 +57,7 @@ const browserSync = () => {
 const html = () => {
   return src(path.src.html)
     .pipe(fileinclude())
-    .pipe(webphtml())
+    .pipe(webphtml(['.png', '.jpg']))
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
@@ -65,7 +66,7 @@ const images = () => {
   return src(path.src.img)
     .pipe(
       webp({
-          quality: 75
+          quality: 85
       })
     )
     .pipe(dest(path.build.img))
@@ -94,6 +95,12 @@ const js = () => {
     )
     .pipe(dest(path.build.js))
     .pipe(browsersync.stream())
+}
+
+const fonts = () => {
+  return src(path.src.fonts) 
+  .pipe(dest(path.build.fonts))
+  .pipe(browsersync.stream())
 }
 
 const css = () => {
@@ -141,6 +148,6 @@ const clean = () => {
 
 exports.default = gulp.series(
   clean,
-  gulp.parallel(css, js, html, images),
+  gulp.parallel(css, js, html, images, fonts),
   gulp.parallel(watchFiles, browserSync)
 )
