@@ -1,4 +1,3 @@
-// let project_folder = require("path").basename(__dirname);
 let project_folder = 'build';
 let source_folder = "src";
 
@@ -14,14 +13,16 @@ let path = {
     html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
     css: source_folder + "/scss/style.scss",
     js: source_folder + "/js/main.js",
-    img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}",
+    img: source_folder + "/img/**/*.{jpg,png,gif,ico,webp}",
+    svg: source_folder + "/img/**/*.svg",
     fonts: source_folder + "/fonts/*"
   },
   watch: {
     html: source_folder + "/**/*.html",
     css: source_folder + "/scss/**/*.scss",
     js: source_folder + "/js/**/*.js",
-    img: source_folder + "/img/**/*.{jpg,png,svg,gif,ico,webp}"
+    img: source_folder + "/img/**/*.{jpg,png,gif,ico,webp}",
+    svg: source_folder + "/img/**/*.svg"
   },
   clean: "./" + project_folder + "/"
 }
@@ -37,8 +38,8 @@ const { src, dest } = require('gulp'),
   clean_css = require("gulp-clean-css"),
   rename = require("gulp-rename"),
   uglify = require("gulp-uglify-es").default,
-  // babel = require("gulp-babel"),
-  tinypng = require("gulp-tinypng"),
+  babel = require("gulp-babel"),
+  tinypng = require("gulp-tinypng-compress"),
   cache = require('gulp-cache'),
   webp = require('gulp-webp'),
   webphtml = require('gulp-xv-webp-html'),
@@ -56,8 +57,8 @@ const browserSync = () => {
 
 const html = () => {
   return src(path.src.html)
-    .pipe(fileinclude())
     .pipe(webphtml(['.png', '.jpg']))
+    .pipe(fileinclude())
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
@@ -71,7 +72,16 @@ const images = () => {
     )
     .pipe(dest(path.build.img))
     .pipe(src(path.src.img))
+    .pipe(cache(
+      tinypng({
+        key: 'Tyfvd06vy8HYhSff3mDT95zmGDk44M4s',
+        sigFile: 'images/.tinypng-sigs',
+        log: true
+      }))
+    )
+    .pipe(dest(path.build.img))
 
+    .pipe(src(path.src.svg))
     .pipe(dest(path.build.img))
     .pipe(browsersync.stream())
 }
@@ -79,12 +89,12 @@ const images = () => {
 const js = () => {
   return src(path.src.js)
     .pipe(fileinclude())
+    .pipe(
+      babel({
+        presets: ['@babel/env']
+      })
+    )
     .pipe(dest(path.build.js))
-    // .pipe(
-    //   babel({
-    //     presets: ['@babel/env']
-    //   })
-    // )
     .pipe(
       uglify()
     )
@@ -122,13 +132,8 @@ const css = () => {
         noWebpClass: '.no-webp'
       })
     )
-    .pipe(dest(path.build.css))
     .pipe(clean_css())
-    .pipe(
-      rename({
-        extname: ".min.css"
-      })
-    )
+    .pipe(rename({ suffix: ".min" }))
     .pipe(dest(path.build.css))
     .pipe(browsersync.stream())
 }
@@ -140,6 +145,7 @@ const watchFiles = () => {
   gulp.watch([path.watch.css], css)
   gulp.watch([path.watch.js], js)
   gulp.watch([path.watch.img], images)
+  gulp.watch([path.watch.svg], images)
 }
 
 const clean = () => {
