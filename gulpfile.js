@@ -40,10 +40,7 @@ const { src, dest } = require('gulp'),
   uglify = require("gulp-uglify-es").default,
   babel = require("gulp-babel"),
   tinypng = require("gulp-tinypng-compress"),
-  cache = require('gulp-cache'),
-  webp = require('gulp-webp'),
-  webphtml = require('gulp-xv-webp-html'),
-  webpcss = require('gulp-webpcss');
+  cache = require('gulp-cache');
 
 const browserSync = () => {
   browsersync.init({
@@ -57,7 +54,6 @@ const browserSync = () => {
 
 const html = () => {
   return src(path.src.html)
-    .pipe(webphtml(['.png', '.jpg']))
     .pipe(fileinclude())
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
@@ -65,13 +61,6 @@ const html = () => {
 
 const images = () => {
   return src(path.src.img)
-    .pipe(
-      webp({
-          quality: 85
-      })
-    )
-    .pipe(dest(path.build.img))
-    .pipe(src(path.src.img))
     .pipe(cache(
       tinypng({
         key: 'Tyfvd06vy8HYhSff3mDT95zmGDk44M4s',
@@ -126,12 +115,6 @@ const css = () => {
         overrideBrowserslist: ["last 5 versions"],
         cascade: true
     }))
-    .pipe(
-      webpcss({
-        webpClass: '.webp',
-        noWebpClass: '.no-webp'
-      })
-    )
     .pipe(clean_css())
     .pipe(rename({ suffix: ".min" }))
     .pipe(dest(path.build.css))

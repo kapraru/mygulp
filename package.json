@@ -1,10 +1,8 @@
 {
-  "name": "new",
-  "version": "1.0.0",
-  "description": "",
+  "private": true,
   "main": "index.html",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "gulp"
   },
   "author": "",
   "license": "ISC",
@@ -24,13 +22,9 @@
     "gulp-sass": "^5.0.0",
     "gulp-tinypng-compress": "^1.2.5",
     "gulp-uglify-es": "^3.0.0",
-    "gulp-webp": "^4.0.1",
-    "gulp-webpcss": "^1.1.1",
-    "gulp-xv-webp-html": "^1.1.2",
     "jquery": "^3.6.0",
     "normalize.css": "^8.0.1",
-    "sass": "^1.38.2",
-    "webp-converter": "^2.2.3"
+    "sass": "^1.38.2"
   },
   "dependencies": {}
 }
