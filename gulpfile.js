@@ -38,7 +38,7 @@ const { src, dest } = require('gulp'),
   clean_css = require("gulp-clean-css"),
   rename = require("gulp-rename"),
   uglify = require("gulp-uglify-es").default,
-  babel = require("gulp-babel"),
+  // babel = require("gulp-babel"),
   tinypng = require("gulp-tinypng-compress"),
   cache = require('gulp-cache');
 
@@ -78,11 +78,11 @@ const images = () => {
 const js = () => {
   return src(path.src.js)
     .pipe(fileinclude())
-    .pipe(
-      babel({
-        presets: ['@babel/env']
-      })
-    )
+    // .pipe(
+    //   babel({
+    //     presets: ['@babel/env']
+    //   })
+    // )
     .pipe(dest(path.build.js))
     .pipe(
       uglify()
