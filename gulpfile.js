@@ -1,4 +1,13 @@
-let project_folder = 'build';
+const settings = {
+  external_folder: true
+}
+
+let project_folder = require("path").basename(__dirname);
+
+if(settings.external_folder) {
+  project_folder = "../built/" + require("path").basename(__dirname);
+}
+
 let source_folder = "src";
 
 let path = {
@@ -12,7 +21,9 @@ let path = {
   src: {
     html: [source_folder + "/*.html", "!" + source_folder + "/_*.html"],
     css: source_folder + "/scss/style.scss",
+    normalize: source_folder + "/scss/normalize.scss",
     js: source_folder + "/js/main.js",
+    jquery: source_folder + "/js/jquery.min.js",
     img: source_folder + "/img/**/*.{jpg,png,gif,ico,webp}",
     svg: source_folder + "/img/**/*.svg",
     fonts: source_folder + "/fonts/*"
@@ -40,7 +51,8 @@ const { src, dest } = require('gulp'),
   uglify = require("gulp-uglify-es").default,
   // babel = require("gulp-babel"),
   tinypng = require("gulp-tinypng-compress"),
-  cache = require('gulp-cache');
+  cache = require('gulp-cache'),
+  sourcemaps = require('gulp-sourcemaps');
 
 const browserSync = () => {
   browsersync.init({
@@ -52,6 +64,7 @@ const browserSync = () => {
   })
 }
 
+// HTML
 const html = () => {
   return src(path.src.html)
     .pipe(fileinclude())
@@ -59,24 +72,26 @@ const html = () => {
     .pipe(browsersync.stream())
 }
 
+// IMAGES
 const images = () => {
   return src(path.src.img)
     .pipe(cache(
       tinypng({
-        key: 'Tyfvd06vy8HYhSff3mDT95zmGDk44M4s',
+        key: 'api',
         sigFile: 'images/.tinypng-sigs',
         log: true
       }))
     )
     .pipe(dest(path.build.img))
-
     .pipe(src(path.src.svg))
     .pipe(dest(path.build.img))
     .pipe(browsersync.stream())
 }
 
+// JS
 const js = () => {
   return src(path.src.js)
+    .pipe(sourcemaps.init())
     .pipe(fileinclude())
     // .pipe(
     //   babel({
@@ -92,18 +107,22 @@ const js = () => {
         extname: ".min.js"
       })
     )
+    .pipe(sourcemaps.write())
+    .pipe(dest(path.build.js))
+    .pipe(browsersync.stream())
+}
+// JS JQUERY
+const jsJquery = () => {
+  return src(path.src.jquery)
+    .pipe(fileinclude())
     .pipe(dest(path.build.js))
     .pipe(browsersync.stream())
 }
 
-const fonts = () => {
-  return src(path.src.fonts) 
-  .pipe(dest(path.build.fonts))
-  .pipe(browsersync.stream())
-}
-
+// CSS
 const css = () => {
   return src(path.src.css)
+    .pipe(sourcemaps.init())
     .pipe(
       scss({ 
         outputStyle: 'expanded' 
@@ -117,8 +136,26 @@ const css = () => {
     }))
     .pipe(clean_css())
     .pipe(rename({ suffix: ".min" }))
+    .pipe(sourcemaps.write())
     .pipe(dest(path.build.css))
     .pipe(browsersync.stream())
+}
+// CSS NORMALIZE
+const normalize = () => {
+  return src(path.src.normalize)
+    .pipe(
+      scss({ 
+        outputStyle: 'expanded' 
+      }).on('error', scss.logError)
+    )
+    .pipe(clean_css())
+    .pipe(rename({ suffix: ".min" }))
+    .pipe(dest(path.build.css))
+}
+const fonts = () => {
+  return src(path.src.fonts) 
+  .pipe(dest(path.build.fonts))
+  .pipe(browsersync.stream())
 }
 
 // Watch
@@ -132,11 +169,13 @@ const watchFiles = () => {
 }
 
 const clean = () => {
-  return del(path.clean);
+  return del(path.clean, {
+    force: true
+  });
 }
 
 exports.default = gulp.series(
   clean,
-  gulp.parallel(css, js, html, images, fonts),
+  gulp.parallel(css, normalize, js, jsJquery, html, images, fonts),
   gulp.parallel(watchFiles, browserSync)
 )
