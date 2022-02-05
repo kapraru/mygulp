@@ -1,2 +1,5 @@
-@@include('webp-check.js');
+@@if (webp === true) {
+  @@include('webp-check.js')
+}
+
 @@include('script.js');

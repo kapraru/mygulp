@@ -1,10 +1,11 @@
 const settings = {
-  external_folder: true
+  externalFolder: false,
+  webp: false
 }
 
 let project_folder = require("path").basename(__dirname);
 
-if(settings.external_folder) {
+if(settings.externalFolder) {
   project_folder = "../built/" + require("path").basename(__dirname);
 }
 
@@ -52,7 +53,12 @@ const { src, dest } = require('gulp'),
   // babel = require("gulp-babel"),
   tinypng = require("gulp-tinypng-compress"),
   cache = require('gulp-cache'),
-  sourcemaps = require('gulp-sourcemaps');
+  webp = require('gulp-webp'),
+  webpHTML = require("gulp-xv-webp-html"),
+  htmlmin = require("gulp-htmlmin"),
+  gulpif = require('gulp-if'),
+  sourcemaps = require('gulp-sourcemaps'),
+  webpcss = require('gulp-webpcss');
 
 const browserSync = () => {
   browsersync.init({
@@ -68,6 +74,15 @@ const browserSync = () => {
 const html = () => {
   return src(path.src.html)
     .pipe(fileinclude())
+    .pipe(gulpif(settings.webp, webpHTML()))
+    .pipe(htmlmin({
+        collapseWhitespace: true,
+        removeComments: true,
+        removeCommentsFromCDATA: true,
+        removeEmptyAttributes: true,
+        removeEmptyElements: true,
+        collapseBooleanAttributes: true
+    }))
     .pipe(dest(path.build.html))
     .pipe(browsersync.stream())
 }
@@ -77,11 +92,13 @@ const images = () => {
   return src(path.src.img)
     .pipe(cache(
       tinypng({
-        key: 'api',
+        key: 'Tyfvd06vy8HYhSff3mDT95zmGDk44M4s',
         sigFile: 'images/.tinypng-sigs',
         log: true
       }))
     )
+    .pipe(dest(path.build.img))
+    .pipe(gulpif(settings.webp, webp({ quality: 85 })))
     .pipe(dest(path.build.img))
     .pipe(src(path.src.svg))
     .pipe(dest(path.build.img))
@@ -92,7 +109,11 @@ const images = () => {
 const js = () => {
   return src(path.src.js)
     .pipe(sourcemaps.init())
-    .pipe(fileinclude())
+    .pipe(fileinclude({
+      context: {
+        webp: settings.webp
+      }
+    }))
     // .pipe(
     //   babel({
     //     presets: ['@babel/env']
@@ -122,6 +143,7 @@ const jsJquery = () => {
 // CSS
 const css = () => {
   return src(path.src.css)
+    .pipe(gulpif(settings.webp, webpcss({webpClass: '.webp', noWebpClass: '.no-webp'})))
     .pipe(sourcemaps.init())
     .pipe(
       scss({ 
